@@ -11,10 +11,9 @@
   --gray-100: #D7D7D7;
   --gray-200: #BBBBBB;
 
-  --pink: #FF57B2
+  --pink: #FF57B2;
 
   --black-background: #1A1D23;
-
 }
 
 @media (max-width: 1080px) {
@@ -29,7 +28,7 @@
 }
 
 body {
-  background: var(--gray-900);
+  background: var(--black-background);
   color: var(--white);
 }
 
