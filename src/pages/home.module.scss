@@ -10,11 +10,16 @@
       margin-bottom: 10px;
     }
     .postTitle {
+      cursor: pointer;
       font-family: Inter;
       font-size: 28px;
       font-style: normal;
-      font-weight: 700;      
+      font-weight: 700;
       color: var(--white-100);
+      transition: filter 0.2s;
+      &:hover {
+          filter: brightness(0.8);
+      }
     }
 
     p {
@@ -48,6 +53,19 @@
       time {
         margin-right: 0.5rem;
       }
+    }
+  }
+  .loader {
+    cursor: pointer;
+    color: var(--pink);
+    font-family: Inter;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 600;
+    letter-spacing: 0em;
+    transition: filter 0.2s;
+    &:hover {
+        filter: brightness(0.8);
     }
   }
 }

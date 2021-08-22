@@ -53,6 +53,9 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
             </div>
           </section>
         ))}
+        {next_page && (
+          <span className={styles.loader}>Carregar mais posts</span>
+        )}
       </main>
     </>
   );
