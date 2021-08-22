@@ -2,7 +2,8 @@ import { GetStaticProps } from 'next';
 import Head from 'next/head';
 import Prismic from '@prismicio/client';
 import { RichText } from 'prismic-dom';
-import Header from '../components/Header';
+import { FaRegCalendar } from 'react-icons/fa';
+import { FiUser } from 'react-icons/fi';
 
 import { getPrismicClient } from '../services/prismic';
 
@@ -29,13 +30,57 @@ interface HomeProps {
 }
 
 export default function Home({ postsPagination }: HomeProps): JSX.Element {
-  console.log(postsPagination);
   return (
     <>
       <Head>
         <title>Desafio 3 - Criando projeto do zero</title>
       </Head>
-      <Header />
+      <main className={styles.container}>
+        <section className={styles.content}>
+          <p className={styles.postTitle}>Como utilizar Hooks</p>
+          <p className={styles.postSubtitle}>
+            Pensando em sincronização em vez de ciclos de vida
+          </p>
+          <div className={styles.wrapperTimeAuthor}>
+            <time>
+              <FaRegCalendar className={styles.icon} />
+              15 de Mar 2021
+            </time>
+            <span className={styles.author}>
+              <FiUser className={styles.icon} />
+              Joseph Oliveira
+            </span>
+          </div>
+        </section>
+        <section className={styles.content}>
+          <p className={styles.postTitle}>Como utilizar Hooks</p>
+          <p>Pensando em sincronização em vez de ciclos de vida</p>
+          <div className={styles.wrapperTimeAuthor}>
+            <time>
+              <FaRegCalendar className={styles.icon} />
+              15 de Mar 2021
+            </time>
+            <span className={styles.author}>
+              <FiUser className={styles.icon} />
+              Joseph Oliveira
+            </span>
+          </div>
+        </section>
+        <section className={styles.content}>
+          <p className={styles.postTitle}>Como utilizar Hooks</p>
+          <p>Pensando em sincronização em vez de ciclos de vida</p>
+          <div className={styles.wrapperTimeAuthor}>
+            <time>
+              <FaRegCalendar className={styles.icon} />
+              15 de Mar 2021
+            </time>
+            <span className={styles.author}>
+              <FiUser className={styles.icon} />
+              Joseph Oliveira
+            </span>
+          </div>
+        </section>
+      </main>
     </>
   );
 }
