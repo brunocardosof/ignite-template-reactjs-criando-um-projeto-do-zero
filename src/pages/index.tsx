@@ -30,56 +30,29 @@ interface HomeProps {
 }
 
 export default function Home({ postsPagination }: HomeProps): JSX.Element {
+  const { next_page, results } = postsPagination;
   return (
     <>
       <Head>
         <title>Desafio 3 - Criando projeto do zero</title>
       </Head>
       <main className={styles.container}>
-        <section className={styles.content}>
-          <p className={styles.postTitle}>Como utilizar Hooks</p>
-          <p className={styles.postSubtitle}>
-            Pensando em sincronização em vez de ciclos de vida
-          </p>
-          <div className={styles.wrapperTimeAuthor}>
-            <time>
-              <FaRegCalendar className={styles.icon} />
-              15 de Mar 2021
-            </time>
-            <span className={styles.author}>
-              <FiUser className={styles.icon} />
-              Joseph Oliveira
-            </span>
-          </div>
-        </section>
-        <section className={styles.content}>
-          <p className={styles.postTitle}>Como utilizar Hooks</p>
-          <p>Pensando em sincronização em vez de ciclos de vida</p>
-          <div className={styles.wrapperTimeAuthor}>
-            <time>
-              <FaRegCalendar className={styles.icon} />
-              15 de Mar 2021
-            </time>
-            <span className={styles.author}>
-              <FiUser className={styles.icon} />
-              Joseph Oliveira
-            </span>
-          </div>
-        </section>
-        <section className={styles.content}>
-          <p className={styles.postTitle}>Como utilizar Hooks</p>
-          <p>Pensando em sincronização em vez de ciclos de vida</p>
-          <div className={styles.wrapperTimeAuthor}>
-            <time>
-              <FaRegCalendar className={styles.icon} />
-              15 de Mar 2021
-            </time>
-            <span className={styles.author}>
-              <FiUser className={styles.icon} />
-              Joseph Oliveira
-            </span>
-          </div>
-        </section>
+        {results.map(post => (
+          <section className={styles.content} key={post.uid}>
+            <p className={styles.postTitle}>{post.data.title}</p>
+            <p className={styles.postSubtitle}>{post.data.subtitle}</p>
+            <div className={styles.wrapperTimeAuthor}>
+              <time>
+                <FaRegCalendar className={styles.icon} />
+                {post.first_publication_date}
+              </time>
+              <span className={styles.author}>
+                <FiUser className={styles.icon} />
+                {post.data.author}
+              </span>
+            </div>
+          </section>
+        ))}
       </main>
     </>
   );
@@ -94,27 +67,27 @@ export const getStaticProps: GetStaticProps = async () => {
       pageSize: 10,
     }
   );
-
-  const posts = response.results.map(post => {
+  const posts = response.results.map((post): Post => {
     return {
-      slug: post.uid,
-      title: post.data.title[0].text,
-      subtitle: post.data.subtitle[0].text,
-      author: post.data.author,
-      updatedAt: new Date(post.last_publication_date).toLocaleDateString(
-        'pt-BR',
-        {
-          day: '2-digit',
-          month: 'long',
-          year: 'numeric',
-        }
-      ),
+      uid: post.id,
+      first_publication_date: new Date(
+        post.first_publication_date
+      ).toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric',
+      }),
+      data: {
+        author: post.data.author[0].text,
+        subtitle: post.data.subtitle[0].text,
+        title: post.data.title[0].text,
+      },
     };
   });
 
   return {
     props: {
-      postsPagination: { result: posts, next_page: response.next_page },
+      postsPagination: { results: posts, next_page: response.next_page },
     },
   };
 };
