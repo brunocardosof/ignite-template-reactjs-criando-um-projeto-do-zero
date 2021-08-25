@@ -36,41 +36,45 @@ interface HomeProps {
 
 export default function Home({ postsPagination }: HomeProps): JSX.Element {
   const { next_page, results } = postsPagination;
-  const [posts, setPosts] = useState<Post[]>(results || []);
+  const postWithDateFormatted = results.map(post => {
+    return {
+      ...post,
+      first_publication_date: format(
+        new Date(post.first_publication_date),
+        'dd MMM yyyy',
+        {
+          locale: ptBR,
+        }
+      ),
+    };
+  });
+  const [posts, setPosts] = useState(postWithDateFormatted || []);
   const [loading, setLoading] = useState(false);
   const [nextPage, setNextPage] = useState(next_page);
 
   async function handleNextPage(): Promise<void> {
     setLoading(true);
-    await fetch(nextPage)
-      .then(async response => {
-        const result = await response.json();
-        const getPostResult = result.results.map(post => {
-          return {
-            uid: post.id,
-            first_publication_date: format(
-              new Date(post.first_publication_date),
-              'dd MMM yyyy',
-              {
-                locale: ptBR,
-              }
-            ),
-            data: {
-              author: post.data.author[0].text,
-              subtitle: post.data.subtitle[0].text,
-              title: post.data.title[0].text,
-            },
-          };
-        });
-        console.log(getPostResult);
-        setPosts([...posts, ...getPostResult]);
-        setNextPage(result.next_page);
-        setLoading(false);
-      })
-      .catch(error => {
-        setLoading(false);
-        console.log(error);
-      });
+    const fetchPosts = await fetch(nextPage).then(response => response.json());
+    const getPostResult = fetchPosts.results.map(post => {
+      return {
+        uid: post.id,
+        first_publication_date: format(
+          new Date(post.first_publication_date),
+          'dd MMM yyyy',
+          {
+            locale: ptBR,
+          }
+        ),
+        data: {
+          author: post.data.author,
+          subtitle: post.data.subtitle,
+          title: post.data.title,
+        },
+      };
+    });
+    setPosts([...posts, ...getPostResult]);
+    setNextPage(fetchPosts.next_page);
+    setLoading(false);
   }
 
   return (
@@ -80,8 +84,8 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
       </Head>
       <main className={styles.container}>
         {posts.map(post => (
-          <Link href={`/post/${post.uid}`}>
-            <section className={styles.content} key={post.uid}>
+          <Link href={`/post/${post.uid}`} key={post.uid}>
+            <section className={styles.content}>
               <p className={styles.postTitle}>{post.data.title}</p>
               <p className={styles.postSubtitle}>{post.data.subtitle}</p>
               <div className={styles.wrapperTimeAuthor}>
@@ -120,21 +124,14 @@ export const getStaticProps: GetStaticProps = async () => {
   const posts = response.results.map((post): Post => {
     return {
       uid: post.id,
-      first_publication_date: format(
-        new Date(post.first_publication_date),
-        'dd MMM yyyy',
-        {
-          locale: ptBR,
-        }
-      ),
+      first_publication_date: post.first_publication_date,
       data: {
-        author: post.data.author[0].text,
-        subtitle: post.data.subtitle[0].text,
-        title: post.data.title[0].text,
+        author: post.data.author,
+        subtitle: post.data.subtitle,
+        title: post.data.title,
       },
     };
   });
-
   return {
     props: {
       postsPagination: { results: posts, next_page: response.next_page },
