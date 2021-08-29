@@ -3,6 +3,9 @@ import { GetStaticPaths, GetStaticProps } from 'next';
 import Prismic from '@prismicio/client';
 import { FaRegCalendar } from 'react-icons/fa';
 import { FiUser } from 'react-icons/fi';
+import format from 'date-fns/format';
+import { ptBR } from 'date-fns/locale';
+import { RichText } from 'prismic-dom';
 import { getPrismicClient } from '../../services/prismic';
 
 import commonStyles from '../../styles/common.module.scss';
@@ -30,27 +33,48 @@ interface PostProps {
 }
 
 export default function Post({ post }: PostProps) {
+  const dateFormatted = format(
+    new Date(post.first_publication_date),
+    'dd MMM yyyy',
+    {
+      locale: ptBR,
+    }
+  );
   return (
-    <div className={styles.container}>
+    <main className={styles.container}>
       <img src={post.data.banner.url} alt="banner" />
-      <p className={styles.postTitle}>{post.data.title}</p>
-      <div className={styles.wrapperTimeAuthor}>
-        <time>
-          <FaRegCalendar className={styles.icon} />
-          {post.first_publication_date}
-        </time>
-        <span className={styles.author}>
-          <FiUser className={styles.icon} />
-          {post.data.author}
-        </span>
+      <div className={styles.content}>
+        <p className={styles.postTitle}>{post.data.title}</p>
+        <div className={styles.wrapperTimeAuthor}>
+          <time>
+            <FaRegCalendar className={styles.icon} />
+            {dateFormatted}
+          </time>
+          <span className={styles.author}>
+            <FiUser className={styles.icon} />
+            {post.data.author}
+          </span>
+        </div>
+        <div>
+          {post.data.content.map(itemContent => {
+            return (
+              <div key={itemContent.heading} className={styles.paragraph}>
+                <h2 // eslint-disable-next-line react/no-danger
+                  dangerouslySetInnerHTML={{ __html: itemContent.heading }}
+                />
+                {itemContent.body.map(paragraph => (
+                  <p
+                    // eslint-disable-next-line react/no-danger
+                    dangerouslySetInnerHTML={{ __html: paragraph.text }}
+                    key={paragraph.text}
+                  />
+                ))}
+              </div>
+            );
+          })}
+        </div>
       </div>
-      <div>
-        <h1>{post.data.content[0].heading}</h1>
-        {post.data.content[0].body.map(item => (
-          <h1>{item.text}</h1>
-        ))}
-      </div>
-    </div>
+    </main>
   );
 }
 
@@ -84,7 +108,18 @@ export const getStaticProps: GetStaticProps = async context => {
         url: response.data.banner.url,
       },
       author: response.data.author,
-      content: response.data.content,
+      content: response.data.content.map(itemContent => {
+        return {
+          heading: itemContent.heading,
+          body: itemContent.body.map(itemBody => {
+            return {
+              spans: itemBody.spans,
+              text: itemBody.text,
+              type: itemBody.type,
+            };
+          }),
+        };
+      }),
     },
   };
   return {
