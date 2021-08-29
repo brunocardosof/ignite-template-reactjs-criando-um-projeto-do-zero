@@ -1,3 +1,4 @@
+/* eslint-disable no-return-assign */
 import { GetStaticPaths, GetStaticProps } from 'next';
 
 import Prismic from '@prismicio/client';
@@ -31,10 +32,10 @@ interface PostProps {
   post: Post;
 }
 
-export default function Post({ post }: PostProps) {
+export default function Post({ post }: PostProps): JSX.Element {
   const sumTotalWords = post.data.content.reduce((sumTotal, itemText) => {
     const totalWords = itemText.body.map(item => item.text.split(' ').length);
-    // eslint-disable-next-line no-return-assign
+    // eslint-disable-next-line no-param-reassign
     totalWords.forEach(word => (sumTotal += word));
     return sumTotal;
   }, 0);
@@ -130,6 +131,8 @@ export const getStaticProps: GetStaticProps = async context => {
           body: itemContent.body.map(itemBody => {
             return {
               text: itemBody.text,
+              spans: itemBody.spans,
+              type: itemBody.type,
             };
           }),
         };
