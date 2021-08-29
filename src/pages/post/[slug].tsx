@@ -1,14 +1,13 @@
 import { GetStaticPaths, GetStaticProps } from 'next';
 
 import Prismic from '@prismicio/client';
-import { FaRegCalendar } from 'react-icons/fa';
+import { FaRegCalendar, FaRegClock } from 'react-icons/fa';
 import { FiUser } from 'react-icons/fi';
 import format from 'date-fns/format';
 import { ptBR } from 'date-fns/locale';
-import { RichText } from 'prismic-dom';
+import { useRouter } from 'next/router';
 import { getPrismicClient } from '../../services/prismic';
 
-import commonStyles from '../../styles/common.module.scss';
 import styles from './post.module.scss';
 
 interface Post {
@@ -33,6 +32,15 @@ interface PostProps {
 }
 
 export default function Post({ post }: PostProps) {
+  const sumTotalWords = post.data.content.reduce((sumTotal, itemText) => {
+    const totalWords = itemText.body.map(item => item.text.split(' ').length);
+    // eslint-disable-next-line no-return-assign
+    totalWords.forEach(word => (sumTotal += word));
+    return sumTotal;
+  }, 0);
+  const calcTotalWordsReadByMinute = sumTotalWords / 200;
+  const roundTotalWords = Math.ceil(calcTotalWordsReadByMinute);
+  const router = useRouter();
   const dateFormatted = format(
     new Date(post.first_publication_date),
     'dd MMM yyyy',
@@ -40,6 +48,9 @@ export default function Post({ post }: PostProps) {
       locale: ptBR,
     }
   );
+  if (router.isFallback) {
+    return <span>Carregando...</span>;
+  }
   return (
     <main className={styles.container}>
       <img src={post.data.banner.url} alt="banner" />
@@ -54,6 +65,10 @@ export default function Post({ post }: PostProps) {
             <FiUser className={styles.icon} />
             {post.data.author}
           </span>
+          <span className={styles.timer}>
+            <FaRegClock className={styles.icon} />
+            {roundTotalWords} min
+          </span>
         </div>
         <div>
           {post.data.content.map(itemContent => {
@@ -64,6 +79,7 @@ export default function Post({ post }: PostProps) {
                 />
                 {itemContent.body.map(paragraph => (
                   <p
+                    className={styles.contentText}
                     // eslint-disable-next-line react/no-danger
                     dangerouslySetInnerHTML={{ __html: paragraph.text }}
                     key={paragraph.text}
@@ -113,9 +129,7 @@ export const getStaticProps: GetStaticProps = async context => {
           heading: itemContent.heading,
           body: itemContent.body.map(itemBody => {
             return {
-              spans: itemBody.spans,
               text: itemBody.text,
-              type: itemBody.type,
             };
           }),
         };
