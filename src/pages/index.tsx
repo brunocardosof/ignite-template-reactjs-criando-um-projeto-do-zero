@@ -57,7 +57,7 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
     const fetchPosts = await fetch(nextPage).then(response => response.json());
     const getPostResult = fetchPosts.results.map(post => {
       return {
-        uid: post.id,
+        uid: post.uid,
         first_publication_date: format(
           new Date(post.first_publication_date),
           'dd MMM yyyy',
@@ -123,7 +123,7 @@ export const getStaticProps: GetStaticProps = async () => {
   );
   const posts = response.results.map((post): Post => {
     return {
-      uid: post.id,
+      uid: post.uid,
       first_publication_date: post.first_publication_date,
       data: {
         author: post.data.author,
